@@ -12,6 +12,7 @@ import timezone from 'dayjs/plugin/timezone';
 import Announcement from "./components/Announcement";
 import { Stat } from "./components/Common";
 import FundTrendChart from "./components/FundTrendChart";
+import FundIntradayChart from "./components/FundIntradayChart";
 import { ChevronIcon, CloseIcon, ExitIcon, EyeIcon, EyeOffIcon, GridIcon, ListIcon, LoginIcon, LogoutIcon, PinIcon, PinOffIcon, PlusIcon, RefreshIcon, SettingsIcon, SortIcon, StarIcon, TrashIcon, UpdateIcon, UserIcon, CameraIcon } from "./components/Icons";
 import AddFundToGroupModal from "./components/AddFundToGroupModal";
 import AddResultModal from "./components/AddResultModal";
@@ -37,6 +38,7 @@ import UpdatePromptModal from "./components/UpdatePromptModal";
 import WeChatModal from "./components/WeChatModal";
 import githubImg from "./assets/github.svg";
 import { supabase, isSupabaseConfigured } from './lib/supabase';
+import { recordValuation, getAllValuationSeries, clearFund } from './lib/valuationTimeseries';
 import { fetchFundData, fetchLatestRelease, fetchShanghaiIndexDate, fetchSmartFundNetValue, searchFunds } from './api/fund';
 import packageJson from '../package.json';
 
@@ -296,6 +298,9 @@ export default function HomePage() {
   // 收起/展开状态
   const [collapsedCodes, setCollapsedCodes] = useState(new Set());
   const [collapsedTrends, setCollapsedTrends] = useState(new Set()); // New state for collapsed trend charts
+
+  // 估值分时序列（每次调用估值接口记录，用于分时图）
+  const [valuationSeries, setValuationSeries] = useState(() => (typeof window !== 'undefined' ? getAllValuationSeries() : {}));
 
   // 自选状态
   const [favorites, setFavorites] = useState(new Set());
@@ -1182,6 +1187,13 @@ export default function HomePage() {
           storageHelper.setItem('funds', JSON.stringify(updated));
           return updated;
         });
+        const nextSeries = {};
+        newFunds.forEach(u => {
+          if (u?.code != null && !u.noValuation && Number.isFinite(Number(u.gsz))) {
+            nextSeries[u.code] = recordValuation(u.code, { gsz: u.gsz, gztime: u.gztime });
+          }
+        });
+        if (Object.keys(nextSeries).length > 0) setValuationSeries(prev => ({ ...prev, ...nextSeries }));
         setSuccessModal({ open: true, message: `成功导入 ${successCount} 个基金` });
       } else {
         if (codes.length > 0 && successCount === 0 && failedCount === 0) {
@@ -1267,6 +1279,7 @@ export default function HomePage() {
   }, []);
 
   const storageHelper = useMemo(() => {
+    // 仅以下 key 参与云端同步；fundValuationTimeseries 不同步到云端（测试中功能，暂不同步）
     const keys = new Set(['funds', 'favorites', 'groups', 'collapsedCodes', 'collapsedTrends', 'refreshMs', 'holdings', 'pendingTrades', 'transactions', 'viewMode']);
     const triggerSync = (key, prevValue, nextValue) => {
       if (keys.has(key)) {
@@ -1313,6 +1326,7 @@ export default function HomePage() {
   }, [getFundCodesSignature, scheduleSync]);
 
   useEffect(() => {
+    // 仅以下 key 的变更会触发云端同步；fundValuationTimeseries 不在其中
     const keys = new Set(['funds', 'favorites', 'groups', 'collapsedCodes', 'collapsedTrends', 'refreshMs', 'holdings', 'pendingTrades', 'viewMode']);
     const onStorage = (e) => {
       if (!e.key) return;
@@ -1492,6 +1506,8 @@ export default function HomePage() {
       if (Array.isArray(savedTrends)) {
         setCollapsedTrends(new Set(savedTrends));
       }
+      // 加载估值分时记录（用于分时图）
+      setValuationSeries(getAllValuationSeries());
       // 加载自选状态
       const savedFavorites = JSON.parse(localStorage.getItem('favorites') || '[]');
       if (Array.isArray(savedFavorites)) {
@@ -1853,6 +1869,13 @@ export default function HomePage() {
           storageHelper.setItem('funds', JSON.stringify(deduped));
           return deduped;
         });
+        const nextSeries = {};
+        added.forEach(u => {
+          if (u?.code != null && !u.noValuation && Number.isFinite(Number(u.gsz))) {
+            nextSeries[u.code] = recordValuation(u.code, { gsz: u.gsz, gztime: u.gztime });
+          }
+        });
+        if (Object.keys(nextSeries).length > 0) setValuationSeries(prev => ({ ...prev, ...nextSeries }));
         setSuccessModal({ open: true, message: `已导入 ${added.length} 只基金` });
       } else {
         setSuccessModal({ open: true, message: '未能导入任何基金，请检查截图清晰度' });
@@ -1883,6 +1906,13 @@ export default function HomePage() {
         const updated = dedupeByCode([...newFunds, ...funds]);
         setFunds(updated);
         storageHelper.setItem('funds', JSON.stringify(updated));
+        const nextSeries = {};
+        newFunds.forEach(u => {
+          if (u?.code != null && !u.noValuation && Number.isFinite(Number(u.gsz))) {
+            nextSeries[u.code] = recordValuation(u.code, { gsz: u.gsz, gztime: u.gztime });
+          }
+        });
+        if (Object.keys(nextSeries).length > 0) setValuationSeries(prev => ({ ...prev, ...nextSeries }));
       }
 
       setSelectedFunds([]);
@@ -1933,6 +1963,17 @@ export default function HomePage() {
           storageHelper.setItem('funds', JSON.stringify(deduped));
           return deduped;
         });
+        // 记录估值分时：每次刷新写入一条，新日期到来时自动清掉老日期数据
+        const nextSeries = {};
+        updated.forEach(u => {
+          if (u?.code != null && !u.noValuation && Number.isFinite(Number(u.gsz))) {
+            const val = recordValuation(u.code, { gsz: u.gsz, gztime: u.gztime });
+            nextSeries[u.code] = val;
+          }
+        });
+        if (Object.keys(nextSeries).length > 0) {
+          setValuationSeries(prev => ({ ...prev, ...nextSeries }));
+        }
       }
     } catch (e) {
       console.error(e);
@@ -1999,6 +2040,13 @@ export default function HomePage() {
         const next = dedupeByCode([...newFunds, ...funds]);
         setFunds(next);
         storageHelper.setItem('funds', JSON.stringify(next));
+        const nextSeries = {};
+        newFunds.forEach(u => {
+          if (u?.code != null && !u.noValuation && Number.isFinite(Number(u.gsz))) {
+            nextSeries[u.code] = recordValuation(u.code, { gsz: u.gsz, gztime: u.gztime });
+          }
+        });
+        if (Object.keys(nextSeries).length > 0) setValuationSeries(prev => ({ ...prev, ...nextSeries }));
       }
       setSearchTerm('');
       setSelectedFunds([]);
@@ -2079,6 +2127,15 @@ export default function HomePage() {
       const next = { ...prev };
       delete next[removeCode];
       storageHelper.setItem('transactions', JSON.stringify(next));
+      return next;
+    });
+
+    // 同步删除该基金的估值分时数据
+    clearFund(removeCode);
+    setValuationSeries(prev => {
+      if (!(removeCode in prev)) return prev;
+      const next = { ...prev };
+      delete next[removeCode];
       return next;
     });
   };
@@ -2230,7 +2287,7 @@ export default function HomePage() {
   const collectLocalPayload = (keys = null) => {
     try {
       const all = {};
-
+      // 不包含 fundValuationTimeseries，该数据暂不同步到云端
       if (!keys || keys.has('funds')) {
         all.funds = JSON.parse(localStorage.getItem('funds') || '[]');
       }
@@ -3771,6 +3828,12 @@ export default function HomePage() {
                                   <div style={{ fontSize: '10px', color: 'var(--muted)', marginTop: -8, marginBottom: 10, textAlign: 'right' }}>
                                     基于 {Math.round(f.estPricedCoverage * 100)}% 持仓估算
                                   </div>
+                                )}
+                                {Array.isArray(valuationSeries[f.code]) && valuationSeries[f.code].length >= 2 && (
+                                  <FundIntradayChart
+                                    series={valuationSeries[f.code]}
+                                    referenceNav={f.dwjz != null ? Number(f.dwjz) : undefined}
+                                  />
                                 )}
                                 <div
                                   style={{ marginBottom: 8, cursor: 'pointer', userSelect: 'none' }}
