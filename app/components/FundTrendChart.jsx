@@ -397,12 +397,18 @@ export default function FundTrendChart({ code, isExpanded, onToggleExpand, trans
            const value = datasets[datasetIndex].data[index];
 
            if (dateStr !== undefined && value !== undefined) {
-               // X axis label (date)
+              // X axis label (date) with boundary clamping
                const textWidth = ctx.measureText(dateStr).width + 8;
+               const chartLeft = chart.scales.x.left;
+               const chartRight = chart.scales.x.right;
+               let labelLeft = x - textWidth / 2;
+               if (labelLeft < chartLeft) labelLeft = chartLeft;
+               if (labelLeft + textWidth > chartRight) labelLeft = chartRight - textWidth;
+               const labelCenterX = labelLeft + textWidth / 2;
                ctx.fillStyle = primaryColor;
-               ctx.fillRect(x - textWidth / 2, bottomY, textWidth, 16);
+               ctx.fillRect(labelLeft, bottomY, textWidth, 16);
                ctx.fillStyle = '#0f172a'; // --background
-               ctx.fillText(dateStr, x, bottomY + 8);
+               ctx.fillText(dateStr, labelCenterX, bottomY + 8);
 
                // Y axis label (value)
                const valueStr = (typeof value === 'number' ? value.toFixed(2) : value) + '%';

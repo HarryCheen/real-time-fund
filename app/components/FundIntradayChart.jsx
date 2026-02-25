@@ -193,10 +193,16 @@ export default function FundIntradayChart({ series = [], referenceNav }) {
       if (labels && index in labels) {
         const timeStr = String(labels[index]);
         const tw = ctx.measureText(timeStr).width + 8;
+        const chartLeft = chart.scales.x.left;
+        const chartRight = chart.scales.x.right;
+        let labelLeft = x - tw / 2;
+        if (labelLeft < chartLeft) labelLeft = chartLeft;
+        if (labelLeft + tw > chartRight) labelLeft = chartRight - tw;
+        const labelCenterX = labelLeft + tw / 2;
         ctx.fillStyle = prim;
-        ctx.fillRect(x - tw / 2, bottomY, tw, 16);
+        ctx.fillRect(labelLeft, bottomY, tw, 16);
         ctx.fillStyle = bgText;
-        ctx.fillText(timeStr, x, bottomY + 8);
+        ctx.fillText(timeStr, labelCenterX, bottomY + 8);
       }
       if (data && index in data) {
         const val = data[index];

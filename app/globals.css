@@ -1070,10 +1070,10 @@ input[type="number"] {
   position: absolute;
   inset: 0;
   border-radius: 12px;
-  padding: 2px;
+  padding: 1.5px;
   background: conic-gradient(
-    var(--accent) 0deg,
-    var(--accent) calc(var(--progress) * 360deg),
+    var(--primary) 0deg,
+    var(--primary) calc(var(--progress) * 360deg),
     var(--border) calc(var(--progress) * 360deg)
   );
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
