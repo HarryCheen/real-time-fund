@@ -3949,7 +3949,13 @@ export default function HomePage() {
                                     >
                                       {f.name}
                                     </span>
-                                    <span className="muted code-text">#{f.code}</span>
+                                    <span className="muted code-text">
+                                      {(() => {
+                                        const holding = holdings[f.code];
+                                        const profit = getHoldingProfit(f, holding);
+                                        return profit ? `¥${profit.amount.toFixed(2)}` : `#${f.code}`;
+                                      })()}
+                                    </span>
                                   </div>
                                 </div>
                                 {(() => {
