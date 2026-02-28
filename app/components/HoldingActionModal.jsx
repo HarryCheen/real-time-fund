@@ -75,9 +75,9 @@ export default function HoldingActionModal({ fund, onClose, onAction, hasHistory
             减仓
           </button>
           <button
-            className="button col-4"
+            className="button col-4 dca-btn"
             onClick={() => onAction('dca')}
-            style={{ background: 'rgba(34, 211, 238, 0.12)', border: '1px solid #ffffff', color: '#ffffff', fontSize: 14 }}
+            style={{ fontSize: 14 }}
           >
             定投
           </button>

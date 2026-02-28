@@ -8,6 +8,23 @@
   --success: #34d399;
   --danger: #f87171;
   --border: #1f2937;
+  --table-pinned-header-bg: #2a394b;
+  --table-row-hover-bg: #2a394b;
+}
+
+/* 亮色主题：ui-ux-pro-max 规范 - 正文 #0F172A、弱化 #475569、玻璃 bg-white/80+、边框可见 */
+[data-theme="light"] {
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #475569;
+  --primary: #0891b2;
+  --accent: #2563eb;
+  --success: #059669;
+  --danger: #dc2626;
+  --border: #e2e8f0;
+  --table-pinned-header-bg: #e2e8f0;
+  --table-row-hover-bg: #e2e8f0;
 }
 
 * {
@@ -52,6 +69,22 @@ body::before {
     );
 }
 
+[data-theme="light"] body::before {
+  background:
+    radial-gradient(
+      ellipse 120% 120% at 10% -10%,
+      rgba(59, 130, 246, 0.06) 0%,
+      rgba(59, 130, 246, 0.02) 40%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 120% 120% at 90% 0%,
+      rgba(8, 145, 178, 0.05) 0%,
+      rgba(8, 145, 178, 0.015) 45%,
+      transparent 70%
+    );
+}
+
 .container {
   max-width: 90%;
   width: 1200px;
@@ -65,6 +98,339 @@ body::before {
   border-radius: 16px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(8px);
+}
+
+[data-theme="light"] .glass {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.85));
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(12px);
+}
+
+/* 亮色主题：按钮样式适配 */
+[data-theme="light"] .button {
+  border-color: rgba(8, 145, 178, 0.4);
+  background: linear-gradient(180deg, #0ea5e9, #0891b2);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(8, 145, 178, 0.2);
+}
+
+[data-theme="light"] .button:hover {
+  box-shadow: 0 6px 20px rgba(8, 145, 178, 0.35);
+}
+
+[data-theme="light"] .button.secondary {
+  background: #fff;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+[data-theme="light"] .button.secondary:hover {
+  background: #f1f5f9;
+  border-color: var(--muted);
+}
+
+[data-theme="light"] .icon-button {
+  background: #fff;
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+[data-theme="light"] .icon-button:hover {
+  border-color: var(--accent);
+  color: var(--text);
+  background: #f8fafc;
+}
+
+[data-theme="light"] .icon-button.danger {
+  background: linear-gradient(180deg, #ef4444, #dc2626);
+  color: #fff;
+  border-color: rgba(220, 38, 38, 0.4);
+}
+
+[data-theme="light"] .icon-button.danger:hover {
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.25);
+}
+
+/* 亮色主题：GitHub 图标加深，提升在浅色背景上的可见度 */
+[data-theme="light"] .github-icon-wrap img {
+  filter: brightness(0.4);
+}
+
+[data-theme="light"] .icon-button[aria-busy="true"] {
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+[data-theme="light"] .badge {
+  background: #fff;
+  border-color: var(--border);
+}
+
+[data-theme="light"] .badge-v {
+  background: #fff;
+  border-color: var(--border);
+}
+
+[data-theme="light"] .sticky-toggle-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .user-menu-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .user-menu-item.danger:hover {
+  background: rgba(220, 38, 38, 0.08);
+}
+
+[data-theme="light"] .fund-chip {
+  background: rgba(8, 145, 178, 0.12);
+  border-color: rgba(8, 145, 178, 0.35);
+}
+
+[data-theme="light"] .remove-chip:hover {
+  background: rgba(8, 145, 178, 0.18);
+}
+
+/* 亮色主题：搜索输入框与下拉 */
+[data-theme="light"] .input {
+  background: #fff;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+[data-theme="light"] .input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+[data-theme="light"] .navbar-add-fund .input {
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+}
+
+[data-theme="light"] .navbar-input-field {
+  color: var(--text);
+}
+
+[data-theme="light"] .search-dropdown {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .search-item:hover:not(.added) {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .search-item.selected {
+  background: rgba(8, 145, 178, 0.12);
+  border: 1px solid rgba(8, 145, 178, 0.3);
+}
+
+[data-theme="light"] .search-spinner {
+  border-color: rgba(0, 0, 0, 0.1);
+  border-top-color: var(--primary);
+}
+
+/* 亮色主题：filter-bar 区域 */
+[data-theme="light"] .filter-bar {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .tab {
+  color: var(--muted);
+}
+
+[data-theme="light"] .tab:hover {
+  color: var(--primary);
+  background: rgba(8, 145, 178, 0.1);
+}
+
+[data-theme="light"] .tab.active {
+  background: rgba(8, 145, 178, 0.15);
+  color: var(--primary);
+}
+
+[data-theme="light"] .tabs-nav-btn {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+[data-theme="light"] .tabs-nav-btn:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: #fff;
+}
+
+[data-theme="light"] .group-summary-sticky {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  border-bottom-color: var(--border);
+}
+
+[data-theme="light"] .group-selector-popup {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.06);
+}
+
+@media (max-width: 640px) {
+  [data-theme="light"] .filter-bar {
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom-color: var(--border);
+  }
+
+  [data-theme="light"] .group-summary-sticky {
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom-color: var(--border);
+  }
+}
+
+/* 亮色主题：sort-group 区域（视图切换 + 排序芯片） */
+[data-theme="light"] .view-toggle {
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="light"] .view-toggle .icon-button.active {
+  color: #fff !important;
+}
+
+[data-theme="light"] .chip {
+  background: #fff;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+[data-theme="light"] .chip:hover {
+  border-color: var(--accent);
+}
+
+[data-theme="light"] .chip.active {
+  background: linear-gradient(180deg, #0ea5e9, #0891b2);
+  color: #fff;
+  border-color: transparent;
+}
+
+/* 亮色主题：表格表头与行悬浮高亮 */
+[data-theme="light"] .table-header-row {
+  background: #e2e8f0;
+  border-bottom-color: var(--border);
+}
+
+[data-theme="light"] .table-header-row-scroll {
+  background: rgba(0, 0, 0, 0.04);
+  border-bottom-color: var(--border);
+}
+
+[data-theme="light"] .table-header-cell-fixed {
+  background: rgba(0, 0, 0, 0.04);
+  border-bottom-color: var(--border);
+}
+
+[data-theme="light"] .table-row:hover {
+  background: #e2e8f0;
+}
+
+[data-theme="light"] .table-row-scroll:hover,
+[data-theme="light"] .table-row-scroll.row-hovered {
+  background: #e2e8f0;
+}
+
+[data-theme="light"] .table-fixed-row.row-hovered {
+  background: #e2e8f0;
+}
+
+/* 亮色主题：PcFundTable 专用 */
+[data-theme="light"] .pc-fund-table .table-header-row-scroll {
+  background: #cbd5e1;
+}
+
+[data-theme="light"] .pc-fund-table .table-header-row-scroll .table-header-cell {
+  background: #cbd5e1 !important;
+  color: #0f172a;
+}
+
+[data-theme="light"] .pc-fund-table .resizer:hover::after {
+  box-shadow: 0 0 0 2px rgba(8, 145, 178, 0.25);
+}
+
+[data-theme="light"] .pc-fund-table .table-row.empty-row {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--border);
+}
+
+/* 亮色主题：前10重仓股票展开展示 */
+[data-theme="light"] .list .item {
+  background: #fff;
+  border-color: var(--border);
+}
+
+[data-theme="light"] .list .item .name {
+  color: var(--text);
+}
+
+[data-theme="light"] .list .item .weight {
+  color: var(--accent);
+}
+
+/* 亮色主题：业绩走势下方筛选区域 */
+[data-theme="light"] .trend-range-bar {
+  background: rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border);
+}
+
+[data-theme="light"] .trend-range-btn {
+  color: var(--muted);
+}
+
+[data-theme="light"] .trend-range-btn:hover {
+  color: var(--primary);
+  background: rgba(8, 145, 178, 0.08);
+}
+
+[data-theme="light"] .trend-range-btn.active {
+  background: rgba(8, 145, 178, 0.15);
+  color: var(--primary);
+}
+
+/* 折线图区域：加载/空状态遮罩（暗色默认，亮色主题覆盖） */
+.chart-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.02);
+  z-index: 10;
+}
+
+[data-theme="light"] .chart-overlay {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+/* 主题切换时屏幕中心动画 */
+.theme-transition-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.theme-transition-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--primary);
+  opacity: 0.5;
+  transform-origin: center;
 }
 
 .card .title {
@@ -582,6 +948,40 @@ input[type="number"] {
 .item .weight {
   font-weight: 600;
   color: var(--accent);
+}
+
+/* 业绩走势下方筛选区域（近1月/3月/6月/1年/3年） */
+.trend-range-bar {
+  display: flex;
+  gap: 4px;
+  margin-top: 12px;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.trend-range-btn {
+  flex: 1;
+  padding: 6px 0;
+  font-size: 11px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 400;
+}
+
+.trend-range-btn:hover {
+  color: var(--primary);
+}
+
+.trend-range-btn.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--primary);
+  font-weight: 600;
 }
 
 .empty {
@@ -1188,6 +1588,445 @@ input[type="number"] {
   padding: 16px;
 }
 
+/* 定投按钮：暗色主题 */
+.dca-btn {
+  background: rgba(34, 211, 238, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  color: #fff;
+}
+
+.dca-btn:hover {
+  background: rgba(34, 211, 238, 0.2);
+  border-color: rgba(255, 255, 255, 0.95);
+}
+
+/* 亮色主题：定投按钮（使用 accent 蓝区分加仓的 primary 青） */
+[data-theme="light"] .dca-btn {
+  background: rgba(37, 99, 235, 0.1);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+
+[data-theme="light"] .dca-btn:hover {
+  background: rgba(37, 99, 235, 0.16);
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+}
+
+/* TradeModal 基础样式 */
+.trade-pending-alert {
+  margin-bottom: 16px;
+  background: rgba(230, 162, 60, 0.1);
+  border: 1px solid rgba(230, 162, 60, 0.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #e6a23c;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.trade-pending-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(6px);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.trade-pending-item {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.trade-confirm-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.trade-confirm-divider {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.trade-preview-card {
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.trade-back-btn,
+.trade-cancel-btn,
+.trade-revoke-btn {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--text) !important;
+}
+
+.trade-time-slot {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.trade-time-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 6px 8px;
+}
+
+.trade-time-btn.active {
+  background: var(--primary);
+  color: #05263b;
+}
+
+.trade-amount-btn {
+  flex: 1;
+  padding: 4px 8px;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 4px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+/* 亮色主题：TradeModal */
+[data-theme="light"] .trade-modal .trade-pending-alert {
+  background: rgba(217, 119, 6, 0.12);
+  border-color: rgba(217, 119, 6, 0.35);
+  color: #b45309;
+}
+
+[data-theme="light"] .trade-modal .trade-pending-header {
+  background: rgba(255, 255, 255, 0.98);
+  border-bottom-color: var(--border);
+}
+
+[data-theme="light"] .trade-modal .trade-pending-item {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .trade-modal .trade-confirm-card {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .trade-modal .trade-confirm-divider {
+  border-top-color: var(--border);
+}
+
+[data-theme="light"] .trade-modal .trade-preview-card {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .trade-modal .trade-back-btn,
+[data-theme="light"] .trade-modal .trade-cancel-btn,
+[data-theme="light"] .trade-modal .trade-revoke-btn {
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="light"] .trade-modal .trade-time-slot {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .trade-modal .trade-time-btn.active {
+  color: #fff;
+}
+
+[data-theme="light"] .trade-modal .trade-amount-btn {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.trade-pending-status {
+  color: #e6a23c;
+}
+
+[data-theme="light"] .trade-modal .trade-pending-status {
+  color: #b45309;
+}
+
+/* DatePicker 基础样式 */
+.date-picker-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.date-picker-dropdown {
+  background: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.date-picker-cell {
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text);
+  font-weight: 400;
+}
+
+.date-picker-cell.selected {
+  background: var(--primary);
+  color: #000;
+  font-weight: 600;
+}
+
+.date-picker-cell.today {
+  background: rgba(255, 255, 255, 0.1);
+  font-weight: 600;
+}
+
+.date-picker-cell.future {
+  cursor: not-allowed;
+  color: var(--muted);
+  opacity: 0.3;
+}
+
+.date-picker-cell:not(.selected):not(.future):hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.date-picker-cell.today:not(.selected):not(.future):hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* 亮色主题：DatePicker */
+[data-theme="light"] .date-picker-trigger {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: var(--border);
+}
+
+[data-theme="light"] .date-picker-dropdown {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: var(--border);
+}
+
+[data-theme="light"] .date-picker-cell.selected {
+  color: #fff;
+}
+
+[data-theme="light"] .date-picker-cell.today {
+  background: rgba(8, 145, 178, 0.15);
+}
+
+[data-theme="light"] .date-picker-cell:not(.selected):not(.future):hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .date-picker-cell.today:not(.selected):not(.future):hover {
+  background: rgba(8, 145, 178, 0.2);
+}
+
+/* DcaModal 基础样式 */
+.dca-toggle-track {
+  width: 32px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.6);
+  position: relative;
+  transition: background 0.2s;
+}
+
+.dca-toggle-track.enabled {
+  background: var(--primary);
+}
+
+.dca-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #0f172a;
+  transition: left 0.2s;
+}
+
+.dca-option-group {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.dca-option-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 4px 6px;
+  white-space: nowrap;
+}
+
+.dca-option-btn.active {
+  background: var(--primary);
+  color: #05263b;
+}
+
+.dca-weekday-btn {
+  font-size: 12px;
+  padding: 6px 4px;
+}
+
+.dca-monthly-day-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 4px;
+  max-height: 140px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.dca-monthly-btn {
+  flex: 0 0 calc(25% - 4px);
+  padding: 4px 0;
+}
+
+.dca-first-date-display {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  font-size: 14px;
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.dca-cancel-btn {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--text) !important;
+}
+
+/* 亮色主题：DcaModal */
+[data-theme="light"] .dca-modal .dca-toggle-thumb {
+  background: #fff;
+}
+
+[data-theme="light"] .dca-modal .dca-option-group {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .dca-modal .dca-option-btn.active {
+  color: #fff;
+}
+
+[data-theme="light"] .dca-modal .dca-monthly-day-group {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .dca-modal .dca-first-date-display {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .dca-modal .dca-cancel-btn {
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* ScanPickModal 拖拽区域 */
+.scan-pick-dropzone {
+  border: 2px dashed var(--border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.scan-pick-dropzone.dragging {
+  border-color: var(--primary);
+  background: rgba(34, 211, 238, 0.08);
+}
+
+/* 亮色主题：ScanPickModal 拖拽区域边框更明显 */
+[data-theme="light"] .scan-pick-modal .scan-pick-dropzone {
+  border-color: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .scan-pick-modal .scan-pick-dropzone.dragging {
+  border-color: var(--primary);
+  background: rgba(8, 145, 178, 0.12);
+}
+
+/* TransactionHistoryModal 基础样式 */
+.tx-history-pending-item {
+  background: rgba(230, 162, 60, 0.1);
+  border: 1px solid rgba(230, 162, 60, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+.tx-history-dca-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+}
+
+.tx-history-pending-status {
+  color: #e6a23c;
+}
+
+.tx-history-action-btn {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: var(--text) !important;
+}
+
+.tx-history-record-item {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+/* 亮色主题：TransactionHistoryModal */
+[data-theme="light"] .tx-history-modal .tx-history-pending-item {
+  background: rgba(217, 119, 6, 0.12);
+  border-color: rgba(217, 119, 6, 0.35);
+}
+
+[data-theme="light"] .tx-history-modal .tx-history-dca-badge {
+  background: rgba(5, 150, 105, 0.15);
+  color: #059669;
+}
+
+[data-theme="light"] .tx-history-modal .tx-history-pending-status {
+  color: #b45309;
+}
+
+[data-theme="light"] .tx-history-modal .tx-history-action-btn {
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="light"] .tx-history-modal .tx-history-record-item {
+  background: rgba(0, 0, 0, 0.04);
+}
+
 .pending-list {
   scrollbar-width: none;
 }
@@ -1390,6 +2229,17 @@ input[type="number"] {
   border-left: 2px solid #05263b;
   border-bottom: 2px solid #05263b;
   transform: rotate(-45deg) translateY(-1px);
+}
+
+/* 亮色主题：checkbox 边框更明显，选中时勾为白色 */
+[data-theme="light"] .checkbox {
+  border-color: rgba(0, 0, 0, 0.28);
+}
+
+[data-theme="light"] .search-item.selected .checkbox .checked-mark,
+[data-theme="light"] .group-manage-item.selected .checkbox .checked-mark {
+  border-left-color: #fff;
+  border-bottom-color: #fff;
 }
 
 .added-label {

@@ -22,14 +22,41 @@ ChartJS.register(
   Filler
 );
 
+const CHART_COLORS = {
+  dark: {
+    danger: '#f87171',
+    success: '#34d399',
+    primary: '#22d3ee',
+    muted: '#9ca3af',
+    border: '#1f2937',
+    text: '#e5e7eb',
+    crosshairText: '#0f172a',
+  },
+  light: {
+    danger: '#dc2626',
+    success: '#059669',
+    primary: '#0891b2',
+    muted: '#475569',
+    border: '#e2e8f0',
+    text: '#0f172a',
+    crosshairText: '#ffffff',
+  }
+};
+
+function getChartThemeColors(theme) {
+  return CHART_COLORS[theme] || CHART_COLORS.dark;
+}
+
 /**
  * 分时图：展示当日（或最近一次记录日）的估值序列，纵轴为相对参考净值的涨跌幅百分比。
  * series: Array<{ time: string, value: number, date?: string }>
  * referenceNav: 参考净值（最新单位净值），用于计算涨跌幅；未传则用当日第一个估值作为参考。
+ * theme: 'light' | 'dark'，用于亮色主题下坐标轴与 crosshair 样式
  */
-export default function FundIntradayChart({ series = [], referenceNav }) {
+export default function FundIntradayChart({ series = [], referenceNav, theme = 'dark' }) {
   const chartRef = useRef(null);
   const hoverTimeoutRef = useRef(null);
+  const chartColors = useMemo(() => getChartThemeColors(theme), [theme]);
 
   const chartData = useMemo(() => {
     if (!series.length) return { labels: [], datasets: [] };
@@ -40,9 +67,8 @@ export default function FundIntradayChart({ series = [], referenceNav }) {
       : values[0];
     const percentages = values.map((v) => (ref ? ((v - ref) / ref) * 100 : 0));
     const lastPct = percentages[percentages.length - 1];
-    const riseColor = '#f87171';  // 涨用红色
-    const fallColor = '#34d399';  // 跌用绿色
-    // 以最新点相对参考净值的涨跌定色：涨(>=0)红，跌(<0)绿
+    const riseColor = chartColors.danger;
+    const fallColor = chartColors.success;
     const lineColor = lastPct != null && lastPct >= 0 ? riseColor : fallColor;
 
     return {
@@ -68,9 +94,11 @@ export default function FundIntradayChart({ series = [], referenceNav }) {
         }
       ]
     };
-  }, [series, referenceNav]);
+  }, [series, referenceNav, chartColors.danger, chartColors.success]);
 
-  const options = useMemo(() => ({
+  const options = useMemo(() => {
+    const colors = getChartThemeColors();
+    return {
     responsive: true,
     maintainAspectRatio: false,
     interaction: { mode: 'index', intersect: false },
@@ -88,7 +116,7 @@ export default function FundIntradayChart({ series = [], referenceNav }) {
         display: true,
         grid: { display: false },
         ticks: {
-          color: '#9ca3af',
+          color: colors.muted,
           font: { size: 10 },
           maxTicksLimit: 6
         }
@@ -96,9 +124,9 @@ export default function FundIntradayChart({ series = [], referenceNav }) {
       y: {
         display: true,
         position: 'left',
-        grid: { color: '#1f2937', drawBorder: false },
+        grid: { color: colors.border, drawBorder: false },
         ticks: {
-          color: '#9ca3af',
+          color: colors.muted,
           font: { size: 10 },
           callback: (v) => (isNumber(v) ? `${v >= 0 ? '+' : ''}${v.toFixed(2)}%` : v)
         }
@@ -142,7 +170,8 @@ export default function FundIntradayChart({ series = [], referenceNav }) {
         }, 2000);
       }
     }
-  }), []);
+  };
+  }, [theme]);
 
   useEffect(() => {
     return () => {
@@ -152,7 +181,9 @@ export default function FundIntradayChart({ series = [], referenceNav }) {
     };
   }, []);
 
-  const plugins = useMemo(() => [{
+  const plugins = useMemo(() => {
+    const colors = getChartThemeColors(theme);
+    return [{
     id: 'crosshair',
     afterDraw: (chart) => {
       const ctx = chart.ctx;
@@ -175,17 +206,15 @@ export default function FundIntradayChart({ series = [], referenceNav }) {
       ctx.save();
       ctx.setLineDash([3, 3]);
       ctx.lineWidth = 1;
-      ctx.strokeStyle = '#9ca3af';
+      ctx.strokeStyle = colors.muted;
       ctx.moveTo(x, topY);
       ctx.lineTo(x, bottomY);
       ctx.moveTo(leftX, y);
       ctx.lineTo(rightX, y);
       ctx.stroke();
 
-      const prim = typeof document !== 'undefined'
-        ? (getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#22d3ee')
-        : '#22d3ee';
-      const bgText = '#0f172a';
+      const prim = colors.primary;
+      const textCol = colors.crosshairText;
 
       ctx.font = '10px sans-serif';
       ctx.textAlign = 'center';
@@ -202,7 +231,7 @@ export default function FundIntradayChart({ series = [], referenceNav }) {
         const labelCenterX = labelLeft + tw / 2;
         ctx.fillStyle = prim;
         ctx.fillRect(labelLeft, bottomY, tw, 16);
-        ctx.fillStyle = bgText;
+        ctx.fillStyle = textCol;
         ctx.fillText(timeStr, labelCenterX, bottomY + 8);
       }
       if (data && index in data) {
@@ -211,12 +240,13 @@ export default function FundIntradayChart({ series = [], referenceNav }) {
         const vw = ctx.measureText(valueStr).width + 8;
         ctx.fillStyle = prim;
         ctx.fillRect(leftX, y - 8, vw, 16);
-        ctx.fillStyle = bgText;
+        ctx.fillStyle = textCol;
         ctx.fillText(valueStr, leftX + vw / 2, y);
       }
       ctx.restore();
     }
-  }], []);
+  }];
+  }, [theme]);
 
   if (series.length < 2) return null;
 

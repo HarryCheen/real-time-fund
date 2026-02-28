@@ -15,7 +15,7 @@ import Announcement from "./components/Announcement";
 import { Stat } from "./components/Common";
 import FundTrendChart from "./components/FundTrendChart";
 import FundIntradayChart from "./components/FundIntradayChart";
-import { ChevronIcon, CloseIcon, ExitIcon, EyeIcon, EyeOffIcon, GridIcon, ListIcon, LoginIcon, LogoutIcon, PinIcon, PinOffIcon, PlusIcon, RefreshIcon, SettingsIcon, SortIcon, StarIcon, TrashIcon, UpdateIcon, UserIcon, CameraIcon } from "./components/Icons";
+import { ChevronIcon, CloseIcon, ExitIcon, EyeIcon, EyeOffIcon, GridIcon, ListIcon, LoginIcon, LogoutIcon, MoonIcon, PinIcon, PinOffIcon, PlusIcon, RefreshIcon, SettingsIcon, SortIcon, StarIcon, SunIcon, TrashIcon, UpdateIcon, UserIcon, CameraIcon } from "./components/Icons";
 import AddFundToGroupModal from "./components/AddFundToGroupModal";
 import AddResultModal from "./components/AddResultModal";
 import CloudConfigModal from "./components/CloudConfigModal";
@@ -391,6 +391,30 @@ export default function HomePage() {
   const filterBarRef = useRef(null);
   const [navbarHeight, setNavbarHeight] = useState(0);
   const [filterBarHeight, setFilterBarHeight] = useState(0);
+  // 主题初始固定为 dark，避免 SSR 与客户端首屏不一致导致 hydration 报错；真实偏好由 useLayoutEffect 在首帧前恢复
+  const [theme, setTheme] = useState('dark');
+  const [showThemeTransition, setShowThemeTransition] = useState(false);
+
+  const handleThemeToggle = useCallback(() => {
+    setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
+    setShowThemeTransition(true);
+  }, []);
+
+  // 首帧前同步主题（与 layout 中脚本设置的 data-theme 一致），减少图标闪烁
+  useLayoutEffect(() => {
+    try {
+      const fromDom = document.documentElement.getAttribute('data-theme');
+      if (fromDom === 'light' || fromDom === 'dark') {
+        setTheme(fromDom);
+        return;
+      }
+      const fromStorage = localStorage.getItem('theme');
+      if (fromStorage === 'light' || fromStorage === 'dark') {
+        setTheme(fromStorage);
+        document.documentElement.setAttribute('data-theme', fromStorage);
+      }
+    } catch { }
+  }, []);
 
   useEffect(() => {
     const updateHeights = () => {
@@ -1874,8 +1898,20 @@ export default function HomePage() {
       if (savedViewMode === 'card' || savedViewMode === 'list') {
         setViewMode(savedViewMode);
       }
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'light' || savedTheme === 'dark') {
+        setTheme(savedTheme);
+      }
     } catch { }
   }, []);
+
+  // 主题同步到 document 并持久化
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    try {
+      localStorage.setItem('theme', theme);
+    } catch { }
+  }, [theme]);
 
   // 初始化认证状态监听
   useEffect(() => {
@@ -3251,6 +3287,24 @@ export default function HomePage() {
 
   return (
     <div className="container content">
+      <AnimatePresence>
+        {showThemeTransition && (
+          <motion.div
+            className="theme-transition-overlay"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <motion.div
+              className="theme-transition-circle"
+              initial={{ scale: 0, opacity: 0.5 }}
+              animate={{ scale: 2.5, opacity: 0 }}
+              transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+              onAnimationComplete={() => setShowThemeTransition(false)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
       <Announcement />
       <div className="navbar glass" ref={navbarRef}>
         {refreshing && <div className="loading-bar"></div>}
@@ -3434,7 +3488,9 @@ export default function HomePage() {
               <UpdateIcon width="14" height="14" />
             </div>
           )}
-          <Image unoptimized alt="项目Github地址" src={githubImg} style={{ width: '30px', height: '30px', cursor: 'pointer' }} onClick={() => window.open("https://github.com/hzm0321/real-time-fund")} />
+          <span className="github-icon-wrap">
+            <Image unoptimized alt="项目Github地址" src={githubImg} style={{ width: '30px', height: '30px', cursor: 'pointer' }} onClick={() => window.open("https://github.com/hzm0321/real-time-fund")} />
+          </span>
           {isMobile && (
             <button
               className="icon-button mobile-search-btn"
@@ -3464,6 +3520,14 @@ export default function HomePage() {
           {/*>*/}
           {/*  <SettingsIcon width="18" height="18" />*/}
           {/*</button>*/}
+          <button
+            className="icon-button"
+            aria-label={theme === 'dark' ? '切换到亮色主题' : '切换到暗色主题'}
+            onClick={handleThemeToggle}
+            title={theme === 'dark' ? '亮色' : '暗色'}
+          >
+            {theme === 'dark' ? <SunIcon width="18" height="18" /> : <MoonIcon width="18" height="18" />}
+          </button>
           {/* 用户菜单 */}
           <div className="user-menu-container" ref={userMenuRef}>
             <button
@@ -4313,8 +4377,10 @@ export default function HomePage() {
 
                                   return (
                                     <FundIntradayChart
+                                      key={`${f.code}-intraday-${theme}`}
                                       series={valuationSeries[f.code]}
                                       referenceNav={f.dwjz != null ? Number(f.dwjz) : undefined}
+                                      theme={theme}
                                     />
                                   );
                                 })()}
@@ -4371,10 +4437,12 @@ export default function HomePage() {
                                   )}
                                 </AnimatePresence>
                                 <FundTrendChart
+                                  key={`${f.code}-${theme}`}
                                   code={f.code}
                                   isExpanded={!collapsedTrends.has(f.code)}
                                   onToggleExpand={() => toggleTrendCollapse(f.code)}
                                   transactions={transactions[f.code] || []}
+                                  theme={theme}
                                 />
                               </>
                             )}

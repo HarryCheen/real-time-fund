@@ -564,7 +564,7 @@ export default function PcFundTable({
       left: isLeft ? `${column.getStart('left')}px` : undefined,
       right: isRight ? `${column.getAfter('right')}px` : undefined,
       zIndex: isHeader ? 11 : 10,
-      backgroundColor: isHeader ? '#2a394b' : 'var(--row-bg)',
+      backgroundColor: isHeader ? 'var(--table-pinned-header-bg)' : 'var(--row-bg)',
       boxShadow: 'none',
       textAlign: isNameColumn ? 'left' : 'center',
       justifyContent: isNameColumn ? 'flex-start' : 'center',
@@ -572,14 +572,14 @@ export default function PcFundTable({
   };
 
   return (
-    <>
+    <div className="pc-fund-table">
       <style>{`
         .table-row-scroll {
           --row-bg: var(--bg);
           background-color: var(--row-bg);
         }
         .table-row-scroll:hover {
-          --row-bg: #2a394b;
+          --row-bg: var(--table-row-hover-bg);
         }
 
         /* 覆盖 grid 布局为 flex 以支持动态列宽 */
@@ -752,6 +752,6 @@ export default function PcFundTable({
           confirmText="重置"
         />
       )}
-    </>
+    </div>
   );
 }

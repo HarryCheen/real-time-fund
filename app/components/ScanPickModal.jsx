@@ -40,10 +40,6 @@ export default function ScanPickModal({ onClose, onPick, onFilesDrop, isScanning
     marginBottom: 12,
     padding: '20px 16px',
     borderRadius: 12,
-    border: `2px dashed ${isDragging ? 'var(--primary)' : 'var(--border)'}`,
-    background: isDragging
-      ? 'rgba(34, 211, 238, 0.08)'
-      : 'rgba(255, 255, 255, 0.02)',
     transition: 'border-color 0.2s ease, background 0.2s ease',
     cursor: isScanning ? 'not-allowed' : 'pointer',
     pointerEvents: isScanning ? 'none' : 'auto',
@@ -64,7 +60,7 @@ export default function ScanPickModal({ onClose, onPick, onFilesDrop, isScanning
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="glass card modal"
+        className="glass card modal scan-pick-modal"
         onClick={(e) => e.stopPropagation()}
         style={{ width: 420, maxWidth: '90vw' }}
       >
@@ -75,7 +71,7 @@ export default function ScanPickModal({ onClose, onPick, onFilesDrop, isScanning
           从相册选择一张或多张持仓截图，系统将自动识别其中的<span style={{ color: 'var(--primary)' }}>基金代码（6位数字）</span>，并支持批量导入。
         </div>
         <div
-          className="muted"
+          className={`scan-pick-dropzone muted ${isDragging ? 'dragging' : ''}`}
           style={dropZoneStyle}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}

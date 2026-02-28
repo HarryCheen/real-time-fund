@@ -54,7 +54,7 @@ export default function TransactionHistoryModal({
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="glass card modal"
+        className="glass card modal tx-history-modal"
         onClick={(e) => e.stopPropagation()}
         style={{ maxWidth: '480px', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}
       >
@@ -88,22 +88,14 @@ export default function TransactionHistoryModal({
             <div style={{ marginBottom: 20 }}>
               <div className="muted" style={{ fontSize: '12px', marginBottom: 8, paddingLeft: 4 }}>待处理队列</div>
               {pendingTransactions.map((item) => (
-                <div key={item.id} style={{ background: 'rgba(230, 162, 60, 0.1)', border: '1px solid rgba(230, 162, 60, 0.2)', borderRadius: 8, padding: 12, marginBottom: 8 }}>
+                <div key={item.id} className="tx-history-pending-item">
                   <div className="row" style={{ justifyContent: 'space-between', marginBottom: 4 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <span style={{ fontWeight: 600, fontSize: '14px', color: item.type === 'buy' ? 'var(--primary)' : 'var(--danger)' }}>
                         {item.type === 'buy' ? '买入' : '卖出'}
                       </span>
                       {item.type === 'buy' && item.isDca && (
-                        <span
-                          style={{
-                            fontSize: 10,
-                            padding: '2px 6px',
-                            borderRadius: 999,
-                            background: 'rgba(34,197,94,0.15)',
-                            color: '#4ade80'
-                          }}
-                        >
+                        <span className="tx-history-dca-badge">
                           定投
                         </span>
                       )}
@@ -115,11 +107,11 @@ export default function TransactionHistoryModal({
                     <span>{item.share ? `${Number(item.share).toFixed(2)} 份` : `¥${Number(item.amount).toFixed(2)}`}</span>
                   </div>
                   <div className="row" style={{ justifyContent: 'space-between', fontSize: '12px', marginTop: 8 }}>
-                    <span style={{ color: '#e6a23c' }}>等待净值更新...</span>
+                    <span className="tx-history-pending-status">等待净值更新...</span>
                     <button
-                      className="button secondary"
+                      className="button secondary tx-history-action-btn"
                       onClick={() => handleDeleteClick(item, 'pending')}
-                      style={{ padding: '2px 8px', fontSize: '10px', height: 'auto', background: 'rgba(255,255,255,0.1)' }}
+                      style={{ padding: '2px 8px', fontSize: '10px', height: 'auto' }}
                     >
                       撤销
                     </button>
@@ -136,22 +128,14 @@ export default function TransactionHistoryModal({
               <div className="muted" style={{ textAlign: 'center', padding: '20px 0', fontSize: '12px' }}>暂无历史交易记录</div>
             ) : (
               sortedTransactions.map((item) => (
-                <div key={item.id} style={{ background: 'rgba(255, 255, 255, 0.05)', borderRadius: 8, padding: 12, marginBottom: 8 }}>
+                <div key={item.id} className="tx-history-record-item">
                   <div className="row" style={{ justifyContent: 'space-between', marginBottom: 4 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <span style={{ fontWeight: 600, fontSize: '14px', color: item.type === 'buy' ? 'var(--primary)' : 'var(--danger)' }}>
                         {item.type === 'buy' ? '买入' : '卖出'}
                       </span>
                       {item.type === 'buy' && item.isDca && (
-                        <span
-                          style={{
-                            fontSize: 10,
-                            padding: '2px 6px',
-                            borderRadius: 999,
-                            background: 'rgba(34,197,94,0.15)',
-                            color: '#4ade80'
-                          }}
-                        >
+                        <span className="tx-history-dca-badge">
                           定投
                         </span>
                       )}
@@ -175,9 +159,9 @@ export default function TransactionHistoryModal({
                   <div className="row" style={{ justifyContent: 'space-between', fontSize: '12px', marginTop: 8 }}>
                     <span className="muted"></span>
                     <button
-                      className="button secondary"
+                      className="button secondary tx-history-action-btn"
                       onClick={() => handleDeleteClick(item, 'history')}
-                      style={{ padding: '2px 8px', fontSize: '10px', height: 'auto', background: 'rgba(255,255,255,0.1)', color: 'var(--muted)' }}
+                      style={{ padding: '2px 8px', fontSize: '10px', height: 'auto' }}
                     >
                       删除记录
                     </button>

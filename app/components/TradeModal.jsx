@@ -168,7 +168,7 @@ export default function TradeModal({ type, fund, holding, onClose, onConfirm, pe
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="glass card modal"
+        className="glass card modal trade-modal"
         onClick={(e) => e.stopPropagation()}
         style={{ maxWidth: '420px' }}
       >
@@ -184,19 +184,7 @@ export default function TradeModal({ type, fund, holding, onClose, onConfirm, pe
 
         {!showPendingList && !showConfirm && currentPendingTrades.length > 0 && (
           <div
-            style={{
-              marginBottom: 16,
-              background: 'rgba(230, 162, 60, 0.1)',
-              border: '1px solid rgba(230, 162, 60, 0.2)',
-              borderRadius: 8,
-              padding: '8px 12px',
-              fontSize: '12px',
-              color: '#e6a23c',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              cursor: 'pointer'
-            }}
+            className="trade-pending-alert"
             onClick={() => setShowPendingList(true)}
           >
             <span>⚠️ 当前有 {currentPendingTrades.length} 笔待处理交易</span>
@@ -206,7 +194,7 @@ export default function TradeModal({ type, fund, holding, onClose, onConfirm, pe
 
         {showPendingList ? (
           <div className="pending-list" style={{ maxHeight: '300px', overflowY: 'auto' }}>
-            <div className="pending-list-header" style={{ position: 'sticky', top: 0, zIndex: 1, background: 'rgba(15,23,42,0.95)', backdropFilter: 'blur(6px)', paddingBottom: 8, marginBottom: 8, borderBottom: '1px solid var(--border)' }}>
+            <div className="pending-list-header trade-pending-header">
               <button
                 className="button secondary"
                 onClick={() => setShowPendingList(false)}
@@ -217,7 +205,7 @@ export default function TradeModal({ type, fund, holding, onClose, onConfirm, pe
             </div>
             <div className="pending-list-items" style={{ paddingTop: 0 }}>
               {currentPendingTrades.map((trade, idx) => (
-                <div key={trade.id || idx} style={{ background: 'rgba(255,255,255,0.05)', padding: 12, borderRadius: 8, marginBottom: 8 }}>
+                <div key={trade.id || idx} className="trade-pending-item">
                   <div className="row" style={{ justifyContent: 'space-between', marginBottom: 4 }}>
                     <span style={{ fontWeight: 600, fontSize: '14px', color: trade.type === 'buy' ? 'var(--danger)' : 'var(--success)' }}>
                       {trade.type === 'buy' ? '买入' : '卖出'}
@@ -231,17 +219,11 @@ export default function TradeModal({ type, fund, holding, onClose, onConfirm, pe
                   <div className="row" style={{ justifyContent: 'space-between', fontSize: '12px', marginTop: 4 }}>
                     <span className="muted">状态</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ color: '#e6a23c' }}>等待净值更新...</span>
+                      <span className="trade-pending-status">等待净值更新...</span>
                       <button
-                        className="button secondary"
+                        className="button secondary trade-revoke-btn"
                         onClick={() => setRevokeTrade(trade)}
-                        style={{
-                          padding: '2px 8px',
-                          fontSize: '10px',
-                          height: 'auto',
-                          background: 'rgba(255,255,255,0.1)',
-                          color: 'var(--text)'
-                        }}
+                        style={{ padding: '2px 8px', fontSize: '10px', height: 'auto' }}
                       >
                         撤销
                       </button>
@@ -263,7 +245,7 @@ export default function TradeModal({ type, fund, holding, onClose, onConfirm, pe
             {showConfirm ? (
               isBuy ? (
                 <div style={{ fontSize: '14px' }}>
-                  <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 12, padding: 16, marginBottom: 20 }}>
+                  <div className="trade-confirm-card">
                     <div className="row" style={{ justifyContent: 'space-between', marginBottom: 8 }}>
                       <span className="muted">基金名称</span>
                       <span style={{ fontWeight: 600 }}>{fund?.name}</span>
@@ -288,7 +270,7 @@ export default function TradeModal({ type, fund, holding, onClose, onConfirm, pe
                       <span className="muted">买入日期</span>
                       <span>{date}</span>
                     </div>
-                    <div className="row" style={{ justifyContent: 'space-between', marginBottom: 8, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 8 }}>
+                    <div className="row trade-confirm-divider" style={{ justifyContent: 'space-between', marginBottom: 8, paddingTop: 8 }}>
                       <span className="muted">交易时段</span>
                       <span>{isAfter3pm ? '15:00后' : '15:00前'}</span>
                     </div>
@@ -301,7 +283,7 @@ export default function TradeModal({ type, fund, holding, onClose, onConfirm, pe
                     <div style={{ marginBottom: 20 }}>
                       <div className="muted" style={{ marginBottom: 8, fontSize: '12px' }}>持仓变化预览</div>
                       <div className="row" style={{ gap: 12 }}>
-                        <div style={{ flex: 1, background: 'rgba(0,0,0,0.2)', padding: 12, borderRadius: 8 }}>
+                        <div className="trade-preview-card" style={{ flex: 1 }}>
                           <div className="muted" style={{ fontSize: '12px', marginBottom: 4 }}>持有份额</div>
                           <div style={{ fontSize: '12px' }}>
                             <span style={{ opacity: 0.7 }}>{holding.share.toFixed(2)}</span>
@@ -310,7 +292,7 @@ export default function TradeModal({ type, fund, holding, onClose, onConfirm, pe
                           </div>
                         </div>
                         {price ? (
-                          <div style={{ flex: 1, background: 'rgba(0,0,0,0.2)', padding: 12, borderRadius: 8 }}>
+                          <div className="trade-preview-card" style={{ flex: 1 }}>
                             <div className="muted" style={{ fontSize: '12px', marginBottom: 4 }}>持有市值 (估)</div>
                             <div style={{ fontSize: '12px' }}>
                               <span style={{ opacity: 0.7 }}>¥{(holding.share * Number(price)).toFixed(2)}</span>
@@ -326,9 +308,9 @@ export default function TradeModal({ type, fund, holding, onClose, onConfirm, pe
                   <div className="row" style={{ gap: 12 }}>
                     <button
                       type="button"
-                      className="button secondary"
+                      className="button secondary trade-back-btn"
                       onClick={() => setShowConfirm(false)}
-                      style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: 'var(--text)' }}
+                      style={{ flex: 1 }}
                     >
                       返回修改
                     </button>
@@ -345,7 +327,7 @@ export default function TradeModal({ type, fund, holding, onClose, onConfirm, pe
                 </div>
               ) : (
                 <div style={{ fontSize: '14px' }}>
-                  <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 12, padding: 16, marginBottom: 20 }}>
+                  <div className="trade-confirm-card">
                     <div className="row" style={{ justifyContent: 'space-between', marginBottom: 8 }}>
                       <span className="muted">基金名称</span>
                       <span style={{ fontWeight: 600 }}>{fund?.name}</span>
@@ -370,7 +352,7 @@ export default function TradeModal({ type, fund, holding, onClose, onConfirm, pe
                       <span className="muted">卖出日期</span>
                       <span>{date}</span>
                     </div>
-                    <div className="row" style={{ justifyContent: 'space-between', marginBottom: 8, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 8 }}>
+                    <div className="row trade-confirm-divider" style={{ justifyContent: 'space-between', marginBottom: 8, paddingTop: 8 }}>
                       <span className="muted">预计回款</span>
                       <span style={{ color: 'var(--danger)', fontWeight: 700 }}>{loadingPrice ? '计算中...' : (price ? `¥${estimatedReturn.toFixed(2)}` : '待计算')}</span>
                     </div>
@@ -383,7 +365,7 @@ export default function TradeModal({ type, fund, holding, onClose, onConfirm, pe
                     <div style={{ marginBottom: 20 }}>
                       <div className="muted" style={{ marginBottom: 8, fontSize: '12px' }}>持仓变化预览</div>
                       <div className="row" style={{ gap: 12 }}>
-                        <div style={{ flex: 1, background: 'rgba(0,0,0,0.2)', padding: 12, borderRadius: 8 }}>
+                        <div className="trade-preview-card" style={{ flex: 1 }}>
                           <div className="muted" style={{ fontSize: '12px', marginBottom: 4 }}>持有份额</div>
                           <div style={{ fontSize: '12px' }}>
                             <span style={{ opacity: 0.7 }}>{holding.share.toFixed(2)}</span>
@@ -392,7 +374,7 @@ export default function TradeModal({ type, fund, holding, onClose, onConfirm, pe
                           </div>
                         </div>
                         {price ? (
-                          <div style={{ flex: 1, background: 'rgba(0,0,0,0.2)', padding: 12, borderRadius: 8 }}>
+                          <div className="trade-preview-card" style={{ flex: 1 }}>
                             <div className="muted" style={{ fontSize: '12px', marginBottom: 4 }}>持有市值 (估)</div>
                             <div style={{ fontSize: '12px' }}>
                               <span style={{ opacity: 0.7 }}>¥{(holding.share * sellPrice).toFixed(2)}</span>
@@ -408,9 +390,9 @@ export default function TradeModal({ type, fund, holding, onClose, onConfirm, pe
                   <div className="row" style={{ gap: 12 }}>
                     <button
                       type="button"
-                      className="button secondary"
+                      className="button secondary trade-back-btn"
                       onClick={() => setShowConfirm(false)}
-                      style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: 'var(--text)' }}
+                      style={{ flex: 1 }}
                     >
                       返回修改
                     </button>
@@ -472,36 +454,18 @@ export default function TradeModal({ type, fund, holding, onClose, onConfirm, pe
                       <label className="muted" style={{ display: 'block', marginBottom: 8, fontSize: '14px' }}>
                         交易时段
                       </label>
-                      <div className="row" style={{ gap: 8, background: 'rgba(0,0,0,0.2)', borderRadius: '8px', padding: '4px' }}>
+                      <div className="trade-time-slot row" style={{ gap: 8 }}>
                         <button
                           type="button"
+                          className={!isAfter3pm ? 'trade-time-btn active' : 'trade-time-btn'}
                           onClick={() => setIsAfter3pm(false)}
-                          style={{
-                            flex: 1,
-                            border: 'none',
-                            background: !isAfter3pm ? 'var(--primary)' : 'transparent',
-                            color: !isAfter3pm ? '#05263b' : 'var(--muted)',
-                            borderRadius: '6px',
-                            fontSize: '12px',
-                            cursor: 'pointer',
-                            padding: '6px 8px'
-                          }}
                         >
                           15:00前
                         </button>
                         <button
                           type="button"
+                          className={isAfter3pm ? 'trade-time-btn active' : 'trade-time-btn'}
                           onClick={() => setIsAfter3pm(true)}
-                          style={{
-                            flex: 1,
-                            border: 'none',
-                            background: isAfter3pm ? 'var(--primary)' : 'transparent',
-                            color: isAfter3pm ? '#05263b' : 'var(--muted)',
-                            borderRadius: '6px',
-                            fontSize: '12px',
-                            cursor: 'pointer',
-                            padding: '6px 8px'
-                          }}
                         >
                           15:00后
                         </button>
@@ -544,17 +508,8 @@ export default function TradeModal({ type, fund, holding, onClose, onConfirm, pe
                             <button
                               key={opt.label}
                               type="button"
+                              className="trade-amount-btn"
                               onClick={() => handleSetShareFraction(opt.value)}
-                              style={{
-                                flex: 1,
-                                padding: '4px 8px',
-                                fontSize: '12px',
-                                background: 'rgba(255,255,255,0.1)',
-                                border: 'none',
-                                borderRadius: '4px',
-                                color: 'var(--text)',
-                                cursor: 'pointer'
-                              }}
                             >
                               {opt.label}
                             </button>
@@ -563,7 +518,7 @@ export default function TradeModal({ type, fund, holding, onClose, onConfirm, pe
                       )}
                       {holding && (
                         <div className="muted" style={{ fontSize: '12px', marginTop: 6 }}>
-                          当前持仓: {holding.share.toFixed(2)} 份 {pendingSellShare > 0 && <span style={{ color: '#e6a23c', marginLeft: 8 }}>冻结: {pendingSellShare.toFixed(2)} 份</span>}
+                          当前持仓: {holding.share.toFixed(2)} 份 {pendingSellShare > 0 && <span className="trade-pending-status" style={{ marginLeft: 8 }}>冻结: {pendingSellShare.toFixed(2)} 份</span>}
                         </div>
                       )}
                     </div>
@@ -614,36 +569,18 @@ export default function TradeModal({ type, fund, holding, onClose, onConfirm, pe
                       <label className="muted" style={{ display: 'block', marginBottom: 8, fontSize: '14px' }}>
                         交易时段
                       </label>
-                      <div className="row" style={{ gap: 8, background: 'rgba(0,0,0,0.2)', borderRadius: '8px', padding: '4px' }}>
+                      <div className="trade-time-slot row" style={{ gap: 8 }}>
                         <button
                           type="button"
+                          className={!isAfter3pm ? 'trade-time-btn active' : 'trade-time-btn'}
                           onClick={() => setIsAfter3pm(false)}
-                          style={{
-                            flex: 1,
-                            border: 'none',
-                            background: !isAfter3pm ? 'var(--primary)' : 'transparent',
-                            color: !isAfter3pm ? '#05263b' : 'var(--muted)',
-                            borderRadius: '6px',
-                            fontSize: '12px',
-                            cursor: 'pointer',
-                            padding: '6px 8px'
-                          }}
                         >
                           15:00前
                         </button>
                         <button
                           type="button"
+                          className={isAfter3pm ? 'trade-time-btn active' : 'trade-time-btn'}
                           onClick={() => setIsAfter3pm(true)}
-                          style={{
-                            flex: 1,
-                            border: 'none',
-                            background: isAfter3pm ? 'var(--primary)' : 'transparent',
-                            color: isAfter3pm ? '#05263b' : 'var(--muted)',
-                            borderRadius: '6px',
-                            fontSize: '12px',
-                            cursor: 'pointer',
-                            padding: '6px 8px'
-                          }}
                         >
                           15:00后
                         </button>
@@ -663,7 +600,7 @@ export default function TradeModal({ type, fund, holding, onClose, onConfirm, pe
                 )}
 
                 <div className="row" style={{ gap: 12, marginTop: 12 }}>
-                  <button type="button" className="button secondary" onClick={onClose} style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: 'var(--text)' }}>取消</button>
+                  <button type="button" className="button secondary trade-cancel-btn" onClick={onClose} style={{ flex: 1 }}>取消</button>
                   <button
                     type="submit"
                     className="button"

@@ -185,7 +185,7 @@ export default function DcaModal({ fund, plan, onClose, onConfirm }) {
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="glass card modal"
+        className="glass card modal dca-modal"
         onClick={(e) => e.stopPropagation()}
         style={{ maxWidth: '420px' }}
       >
@@ -220,28 +220,8 @@ export default function DcaModal({ fund, plan, onClose, onConfirm }) {
                   gap: 6
                 }}
               >
-                <span
-                  style={{
-                    width: 32,
-                    height: 18,
-                    borderRadius: 999,
-                    background: enabled ? 'var(--primary)' : 'rgba(148,163,184,0.6)',
-                    position: 'relative',
-                    transition: 'background 0.2s'
-                  }}
-                >
-                  <span
-                    style={{
-                      position: 'absolute',
-                      top: 2,
-                      left: enabled ? 16 : 2,
-                      width: 14,
-                      height: 14,
-                      borderRadius: '50%',
-                      background: '#0f172a',
-                      transition: 'left 0.2s'
-                    }}
-                  />
+                <span className={`dca-toggle-track ${enabled ? 'enabled' : ''}`}>
+                  <span className="dca-toggle-thumb" style={{ left: enabled ? 16 : 2 }} />
                 </span>
                 <span style={{ fontSize: 12, color: enabled ? 'var(--primary)' : 'var(--muted)' }}>
                   {enabled ? '已启用' : '未启用'}
@@ -284,23 +264,13 @@ export default function DcaModal({ fund, plan, onClose, onConfirm }) {
               <label className="muted" style={{ display: 'block', marginBottom: 8, fontSize: '14px' }}>
                 定投周期 <span style={{ color: 'var(--danger)' }}>*</span>
               </label>
-              <div className="row" style={{ gap: 4, background: 'rgba(0,0,0,0.2)', borderRadius: 8, padding: 4 }}>
+              <div className="dca-option-group row" style={{ gap: 4 }}>
                 {CYCLES.map((opt) => (
                   <button
                     key={opt.value}
                     type="button"
+                    className={`dca-option-btn ${cycle === opt.value ? 'active' : ''}`}
                     onClick={() => setCycle(opt.value)}
-                    style={{
-                      flex: 1,
-                      border: 'none',
-                      background: cycle === opt.value ? 'var(--primary)' : 'transparent',
-                      color: cycle === opt.value ? '#05263b' : 'var(--muted)',
-                      borderRadius: 6,
-                      fontSize: 11,
-                      cursor: 'pointer',
-                      padding: '4px 6px',
-                      whiteSpace: 'nowrap'
-                    }}
                   >
                     {opt.label}
                   </button>
@@ -314,23 +284,13 @@ export default function DcaModal({ fund, plan, onClose, onConfirm }) {
               <label className="muted" style={{ display: 'block', marginBottom: 8, fontSize: '14px' }}>
                 扣款星期 <span style={{ color: 'var(--danger)' }}>*</span>
               </label>
-              <div className="row" style={{ gap: 4, background: 'rgba(0,0,0,0.2)', borderRadius: 8, padding: 4 }}>
+              <div className="dca-option-group row" style={{ gap: 4 }}>
                 {WEEKDAY_OPTIONS.map((opt) => (
                   <button
                     key={opt.value}
                     type="button"
+                    className={`dca-option-btn dca-weekday-btn ${weeklyDay === opt.value ? 'active' : ''}`}
                     onClick={() => setWeeklyDay(opt.value)}
-                    style={{
-                      flex: 1,
-                      border: 'none',
-                      background: weeklyDay === opt.value ? 'var(--primary)' : 'transparent',
-                      color: weeklyDay === opt.value ? '#05263b' : 'var(--muted)',
-                      borderRadius: 6,
-                      fontSize: 12,
-                      cursor: 'pointer',
-                      padding: '6px 4px',
-                      whiteSpace: 'nowrap'
-                    }}
                   >
                     {opt.label}
                   </button>
@@ -344,20 +304,7 @@ export default function DcaModal({ fund, plan, onClose, onConfirm }) {
               <label className="muted" style={{ display: 'block', marginBottom: 8, fontSize: '14px' }}>
                 扣款日 <span style={{ color: 'var(--danger)' }}>*</span>
               </label>
-              <div
-                className="scrollbar-y-styled"
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: 4,
-                  background: 'rgba(0,0,0,0.2)',
-                  borderRadius: 8,
-                  padding: 4,
-                  maxHeight: 140,
-                  overflowY: 'auto',
-                  scrollBehavior: 'smooth'
-                }}
-              >
+              <div className="dca-monthly-day-group scrollbar-y-styled">
                 {Array.from({ length: 28 }).map((_, idx) => {
                   const day = idx + 1;
                   const active = monthlyDay === day;
@@ -366,17 +313,8 @@ export default function DcaModal({ fund, plan, onClose, onConfirm }) {
                       key={day}
                       ref={active ? monthlyDayRef : null}
                       type="button"
+                      className={`dca-option-btn dca-monthly-btn ${active ? 'active' : ''}`}
                       onClick={() => setMonthlyDay(day)}
-                      style={{
-                        flex: '0 0 calc(25% - 4px)',
-                        border: 'none',
-                        background: active ? 'var(--primary)' : 'transparent',
-                        color: active ? '#05263b' : 'var(--muted)',
-                        borderRadius: 6,
-                        fontSize: 11,
-                        cursor: 'pointer',
-                        padding: '4px 0'
-                      }}
                     >
                       {day}日
                     </button>
@@ -390,15 +328,7 @@ export default function DcaModal({ fund, plan, onClose, onConfirm }) {
             <label className="muted" style={{ display: 'block', marginBottom: 4, fontSize: '14px' }}>
               首次扣款日期
             </label>
-            <div
-              style={{
-                borderRadius: 12,
-                border: '1px solid var(--border)',
-                padding: '10px 12px',
-                fontSize: 14,
-                background: 'rgba(15,23,42,0.6)'
-              }}
-            >
+            <div className="dca-first-date-display">
               {firstDate}
             </div>
             <div className="muted" style={{ marginTop: 4, fontSize: 12 }}>
@@ -409,9 +339,9 @@ export default function DcaModal({ fund, plan, onClose, onConfirm }) {
           <div className="row" style={{ gap: 12, marginTop: 12 }}>
             <button
               type="button"
-              className="button secondary"
+              className="button secondary dca-cancel-btn"
               onClick={onClose}
-              style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: 'var(--text)' }}
+              style={{ flex: 1 }}
             >
               取消
             </button>
