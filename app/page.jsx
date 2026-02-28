@@ -3184,13 +3184,18 @@ export default function HomePage() {
       actionModal.open ||
       tradeModal.open ||
       dcaModal.open ||
+      addHistoryModal.open ||
+      historyModal.open ||
+      loginModalOpen ||
       !!clearConfirm ||
       donateOpen ||
       !!fundDeleteConfirm ||
       updateModalOpen ||
       weChatOpen ||
       scanModalOpen ||
-      scanConfirmModalOpen;
+      scanConfirmModalOpen ||
+      isScanning ||
+      isScanImporting;
 
     if (isAnyModalOpen) {
       document.body.style.overflow = 'hidden';
@@ -3214,13 +3219,19 @@ export default function HomePage() {
     holdingModal.open,
     actionModal.open,
     tradeModal.open,
+    dcaModal.open,
+    addHistoryModal.open,
+    historyModal.open,
+    loginModalOpen,
     clearConfirm,
     donateOpen,
     fundDeleteConfirm,
     updateModalOpen,
     weChatOpen,
     scanModalOpen,
-    scanConfirmModalOpen
+    scanConfirmModalOpen,
+    isScanning,
+    isScanImporting
   ]);
 
   useEffect(() => {
