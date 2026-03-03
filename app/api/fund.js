@@ -305,97 +305,122 @@ export const fetchFundData = async (c) => {
           .catch(() => resolveT(null));
       });
       const holdingsPromise = new Promise((resolveH) => {
-        (async () => {
-          try {
-            const pz = await fetchFundPingzhongdata(c);
-            const rawCodes = Array.isArray(pz?.stockCodes) ? pz.stockCodes : [];
-            const codes = rawCodes
-              .map((code) => String(code).slice(0, 6))
-              .filter((code) => /^\d{6}$/.test(code))
-              .slice(0, 10);
+        const holdingsUrl = `https://fundf10.eastmoney.com/FundArchivesDatas.aspx?type=jjcc&code=${c}&topline=10&year=&month=&_=${Date.now()}`;
+        const holdingsCacheKey = `fund_holdings_archives_${c}`;
+        cachedRequest(
+          () => loadScript(holdingsUrl),
+          holdingsCacheKey,
+          { cacheTime: 60 * 60 * 1000 }
+        ).then(async (apidata) => {
+          let holdings = [];
+          const html = apidata?.content || '';
+          const holdingsReportDate = extractHoldingsReportDate(html);
+          const holdingsIsLastQuarter = isLastQuarterReport(holdingsReportDate);
 
-            if (!codes.length) {
-              resolveH({ holdings: [], holdingsReportDate: null, holdingsIsLastQuarter: false });
-              return;
-            }
-
-            let holdings = codes.map((code) => ({
-              code,
-              name: '',
-              weight: '',
-              change: null
-            }));
-
-            const needQuotes = holdings.filter(h => /^\d{6}$/.test(h.code) || /^\d{5}$/.test(h.code));
-            if (needQuotes.length) {
-              try {
-                const tencentCodes = needQuotes.map(h => {
-                  const cd = String(h.code || '');
-                  if (/^\d{6}$/.test(cd)) {
-                    const pfx = cd.startsWith('6') || cd.startsWith('9') ? 'sh' : ((cd.startsWith('4') || cd.startsWith('8')) ? 'bj' : 'sz');
-                    return `s_${pfx}${cd}`;
-                  }
-                  if (/^\d{5}$/.test(cd)) {
-                    return `s_hk${cd}`;
-                  }
-                  return null;
-                }).filter(Boolean).join(',');
-                if (tencentCodes) {
-                  const quoteUrl = `https://qt.gtimg.cn/q=${tencentCodes}`;
-                  await new Promise((resQuote) => {
-                    const scriptQuote = document.createElement('script');
-                    scriptQuote.src = quoteUrl;
-                    scriptQuote.onload = () => {
-                      needQuotes.forEach(h => {
-                        const cd = String(h.code || '');
-                        let varName = '';
-                        if (/^\d{6}$/.test(cd)) {
-                          const pfx = cd.startsWith('6') || cd.startsWith('9') ? 'sh' : ((cd.startsWith('4') || cd.startsWith('8')) ? 'bj' : 'sz');
-                          varName = `v_s_${pfx}${cd}`;
-                        } else if (/^\d{5}$/.test(cd)) {
-                          varName = `v_s_hk${cd}`;
-                        } else {
-                          return;
-                        }
-                        const dataStr = window[varName];
-                        if (dataStr) {
-                          const parts = dataStr.split('~');
-                          if (parts.length > 5) {
-                            // parts[1] 是名称，parts[5] 是涨跌幅
-                            if (!h.name && parts[1]) {
-                              h.name = parts[1];
-                            }
-                            const chg = parseFloat(parts[5]);
-                            if (!Number.isNaN(chg)) {
-                              h.change = chg;
-                            }
-                          }
-                        }
-                      });
-                      if (document.body.contains(scriptQuote)) document.body.removeChild(scriptQuote);
-                      resQuote();
-                    };
-                    scriptQuote.onerror = () => {
-                      if (document.body.contains(scriptQuote)) document.body.removeChild(scriptQuote);
-                      resQuote();
-                    };
-                    document.body.appendChild(scriptQuote);
-                  });
-                }
-              } catch (e) {
-              }
-            }
-
-            // 使用 pingzhongdata 的结果作为展现依据：有前 10 代码即视为可展示
-            resolveH({
-              holdings,
-              holdingsReportDate: null,
-              holdingsIsLastQuarter: holdings.length > 0
-            });
-          } catch (e) {
-            resolveH({ holdings: [], holdingsReportDate: null, holdingsIsLastQuarter: false });
+          // 如果不是上一季度末的披露数据，则不展示重仓（并避免继续解析/请求行情）
+          if (!holdingsIsLastQuarter) {
+            resolveH({ holdings: [], holdingsReportDate, holdingsIsLastQuarter: false });
+            return;
           }
-        })();
+
+          const headerRow = (html.match(/<thead[\s\S]*?<tr[\s\S]*?<\/tr>[\s\S]*?<\/thead>/i) || [])[0] || '';
+          const headerCells = (headerRow.match(/<th[\s\S]*?>([\s\S]*?)<\/th>/gi) || []).map(th => th.replace(/<[^>]*>/g, '').trim());
+          let idxCode = -1, idxName = -1, idxWeight = -1;
+          headerCells.forEach((h, i) => {
+            const t = h.replace(/\s+/g, '');
+            if (idxCode < 0 && (t.includes('股票代码') || t.includes('证券代码'))) idxCode = i;
+            if (idxName < 0 && (t.includes('股票名称') || t.includes('证券名称'))) idxName = i;
+            if (idxWeight < 0 && (t.includes('占净值比例') || t.includes('占比'))) idxWeight = i;
+          });
+          const rows = html.match(/<tbody[\s\S]*?<\/tbody>/i) || [];
+          const dataRows = rows.length ? rows[0].match(/<tr[\s\S]*?<\/tr>/gi) || [] : html.match(/<tr[\s\S]*?<\/tr>/gi) || [];
+          for (const r of dataRows) {
+            const tds = (r.match(/<td[\s\S]*?>([\s\S]*?)<\/td>/gi) || []).map(td => td.replace(/<[^>]*>/g, '').trim());
+            if (!tds.length) continue;
+            let code = '';
+            let name = '';
+            let weight = '';
+            if (idxCode >= 0 && tds[idxCode]) {
+              const m = tds[idxCode].match(/(\d{6})/);
+              code = m ? m[1] : tds[idxCode];
+            } else {
+              const codeIdx = tds.findIndex(txt => /^\d{6}$/.test(txt));
+              if (codeIdx >= 0) code = tds[codeIdx];
+            }
+            if (idxName >= 0 && tds[idxName]) {
+              name = tds[idxName];
+            } else if (code) {
+              const i = tds.findIndex(txt => txt && txt !== code && !/%$/.test(txt));
+              name = i >= 0 ? tds[i] : '';
+            }
+            if (idxWeight >= 0 && tds[idxWeight]) {
+              const wm = tds[idxWeight].match(/([\d.]+)\s*%/);
+              weight = wm ? `${wm[1]}%` : tds[idxWeight];
+            } else {
+              const wIdx = tds.findIndex(txt => /\d+(?:\.\d+)?\s*%/.test(txt));
+              weight = wIdx >= 0 ? tds[wIdx].match(/([\d.]+)\s*%/)?.[1] + '%' : '';
+            }
+            if (code || name || weight) {
+              holdings.push({ code, name, weight, change: null });
+            }
+          }
+          holdings = holdings.slice(0, 10);
+          const needQuotes = holdings.filter(h => /^\d{6}$/.test(h.code) || /^\d{5}$/.test(h.code));
+          if (needQuotes.length) {
+            try {
+              const tencentCodes = needQuotes.map(h => {
+                const cd = String(h.code || '');
+                if (/^\d{6}$/.test(cd)) {
+                  const pfx = cd.startsWith('6') || cd.startsWith('9') ? 'sh' : ((cd.startsWith('4') || cd.startsWith('8')) ? 'bj' : 'sz');
+                  return `s_${pfx}${cd}`;
+                }
+                if (/^\d{5}$/.test(cd)) {
+                  return `s_hk${cd}`;
+                }
+                return null;
+              }).filter(Boolean).join(',');
+              if (!tencentCodes) {
+                resolveH(holdings);
+                return;
+              }
+              const quoteUrl = `https://qt.gtimg.cn/q=${tencentCodes}`;
+              await new Promise((resQuote) => {
+                const scriptQuote = document.createElement('script');
+                scriptQuote.src = quoteUrl;
+                scriptQuote.onload = () => {
+                  needQuotes.forEach(h => {
+                    const cd = String(h.code || '');
+                    let varName = '';
+                    if (/^\d{6}$/.test(cd)) {
+                      const pfx = cd.startsWith('6') || cd.startsWith('9') ? 'sh' : ((cd.startsWith('4') || cd.startsWith('8')) ? 'bj' : 'sz');
+                      varName = `v_s_${pfx}${cd}`;
+                    } else if (/^\d{5}$/.test(cd)) {
+                      varName = `v_s_hk${cd}`;
+                    } else {
+                      return;
+                    }
+                    const dataStr = window[varName];
+                    if (dataStr) {
+                      const parts = dataStr.split('~');
+                      if (parts.length > 5) {
+                        h.change = parseFloat(parts[5]);
+                      }
+                    }
+                  });
+                  if (document.body.contains(scriptQuote)) document.body.removeChild(scriptQuote);
+                  resQuote();
+                };
+                scriptQuote.onerror = () => {
+                  if (document.body.contains(scriptQuote)) document.body.removeChild(scriptQuote);
+                  resQuote();
+                };
+                document.body.appendChild(scriptQuote);
+              });
+            } catch (e) {
+            }
+          }
+          resolveH({ holdings, holdingsReportDate, holdingsIsLastQuarter });
+        }).catch(() => resolveH({ holdings: [], holdingsReportDate: null, holdingsIsLastQuarter: false }));
       });
       Promise.all([lsjzPromise, holdingsPromise]).then(([tData, holdingsResult]) => {
         const {
