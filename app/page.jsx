@@ -352,6 +352,24 @@ export default function HomePage() {
   // 排序状态
   const [sortBy, setSortBy] = useState('default'); // default, name, yield, holding
   const [sortOrder, setSortOrder] = useState('desc'); // asc | desc
+  const [isSortLoaded, setIsSortLoaded] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedSortBy = window.localStorage.getItem('localSortBy');
+      const savedSortOrder = window.localStorage.getItem('localSortOrder');
+      if (savedSortBy) setSortBy(savedSortBy);
+      if (savedSortOrder) setSortOrder(savedSortOrder);
+      setIsSortLoaded(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && isSortLoaded) {
+      window.localStorage.setItem('localSortBy', sortBy);
+      window.localStorage.setItem('localSortOrder', sortOrder);
+    }
+  }, [sortBy, sortOrder, isSortLoaded]);
 
   // 视图模式
   const [viewMode, setViewMode] = useState('card'); // card, list
