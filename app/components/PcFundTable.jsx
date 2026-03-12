@@ -1179,7 +1179,6 @@ export default function PcFundTable({
       >
         <DialogContent
           className="sm:max-w-2xl max-h-[88vh] flex flex-col p-0 overflow-hidden"
-          showCloseButton={true}
           onPointerDownOutside={blockDialogClose ? (e) => e.preventDefault() : undefined}
         >
           <DialogHeader className="flex-shrink-0 flex flex-row items-center justify-between gap-2 space-y-0 px-6 pb-4 pt-6 text-left border-b border-[var(--border)]">
