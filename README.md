@@ -1,5 +1,9 @@
 # 实时基金估值 (Real-time Fund Valuation)
 
+__写在前面：__
+- 本项目是基于[实时基金估值](https://github.com/hzm0321/real-time-fund)的二次开发项目，不对外提供任何服务与技术上的支持，仅供个人学习之用。在此非常感谢原作者[hzm](https://github.com/hzm0321)的开源贡献，大家多多支持原作者!
+- 本页面保留原项目中README的内容。
+
 一个基于 Next.js 开发的纯前端基金估值与重仓股实时追踪工具。采用玻璃拟态设计（Glassmorphism），支持移动端适配。
 预览地址：  
 1. [https://hzm0321.github.io/real-time-fund/](https://hzm0321.github.io/real-time-fund/)
