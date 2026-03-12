@@ -157,9 +157,9 @@ export default function FundTrendChart({ code, isExpanded, onToggleExpand, trans
             gradient.addColorStop(1, `${lineColor}00`); // 0% opacity
             return gradient;
           },
-          borderWidth: 2,
+          borderWidth: 1.2,
           pointRadius: 0,
-          pointHoverRadius: 4,
+          pointHoverRadius: 3,
           fill: true,
           tension: 0.2,
           order: 2
@@ -173,7 +173,7 @@ export default function FundTrendChart({ code, isExpanded, onToggleExpand, trans
           backgroundColor: primaryColor,
           pointStyle: 'circle',
           pointRadius: 2.5,
-          pointHoverRadius: 4,
+          pointHoverRadius: 3,
           showLine: false,
           order: 1
         },
@@ -186,7 +186,7 @@ export default function FundTrendChart({ code, isExpanded, onToggleExpand, trans
           backgroundColor: upColor,
           pointStyle: 'circle',
           pointRadius: 2.5,
-          pointHoverRadius: 4,
+          pointHoverRadius: 3,
           showLine: false,
           order: 1
         }
