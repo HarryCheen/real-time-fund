@@ -570,7 +570,8 @@ export default function PcFundTable({
         minSize: 80,
         cell: (info) => {
           const original = info.row.original || {};
-          const date = original.latestNavDate ?? '-';
+          const rawDate = original.latestNavDate ?? '-';
+          const date = typeof rawDate === 'string' && rawDate.length > 5 ? rawDate.slice(5) : rawDate;
           return (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0 }}>
               <FitText style={{ fontWeight: 700 }} maxFontSize={14} minFontSize={10} as="div">
@@ -594,15 +595,20 @@ export default function PcFundTable({
         minSize: 80,
         cell: (info) => {
           const original = info.row.original || {};
-          const date = original.estimateNavDate ?? '-';
+          const rawDate = original.estimateNavDate ?? '-';
+          const date = typeof rawDate === 'string' && rawDate.length > 5 ? rawDate.slice(5) : rawDate;
+          const estimateNav = info.getValue();
+          const hasEstimateNav = estimateNav != null && estimateNav !== '—';
           return (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0 }}>
               <FitText style={{ fontWeight: 700 }} maxFontSize={14} minFontSize={10} as="div">
-                {info.getValue() ?? '—'}
+                {estimateNav ?? '—'}
               </FitText>
-              <span className="muted" style={{ fontSize: '11px' }}>
-                {date}
-              </span>
+              {hasEstimateNav && date && date !== '-' ? (
+                <span className="muted" style={{ fontSize: '11px' }}>
+                  {date}
+                </span>
+              ) : null}
             </div>
           );
         },
@@ -619,7 +625,8 @@ export default function PcFundTable({
         cell: (info) => {
           const original = info.row.original || {};
           const value = original.yesterdayChangeValue;
-          const date = original.yesterdayDate ?? '-';
+          const rawDate = original.yesterdayDate ?? '-';
+          const date = typeof rawDate === 'string' && rawDate.length > 5 ? rawDate.slice(5) : rawDate;
           const cls = value > 0 ? 'up' : value < 0 ? 'down' : '';
           return (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0 }}>
@@ -646,16 +653,21 @@ export default function PcFundTable({
           const original = info.row.original || {};
           const value = original.estimateChangeValue;
           const isMuted = original.estimateChangeMuted;
-          const time = original.estimateTime ?? '-';
+          const rawTime = original.estimateTime ?? '-';
+          const time = typeof rawTime === 'string' && rawTime.length > 5 ? rawTime.slice(5) : rawTime;
           const cls = isMuted ? 'muted' : value > 0 ? 'up' : value < 0 ? 'down' : '';
+          const text = info.getValue();
+          const hasText = text != null && text !== '—';
           return (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0 }}>
               <FitText className={cls} style={{ fontWeight: 700 }} maxFontSize={14} minFontSize={10} as="div">
-                {info.getValue() ?? '—'}
+                {text ?? '—'}
               </FitText>
-              <span className="muted" style={{ fontSize: '11px' }}>
-                {time}
-              </span>
+              {hasText && time && time !== '-' ? (
+                <span className="muted" style={{ fontSize: '11px' }}>
+                  {time}
+                </span>
+              ) : null}
             </div>
           );
         },
@@ -680,7 +692,7 @@ export default function PcFundTable({
           return (
             <div style={{ width: '100%' }}>
               <FitText className={cls} style={{ fontWeight: 700, display: 'block' }} maxFontSize={14} minFontSize={10}>
-                {masked && hasProfit ? '******' : amountStr}
+                {masked && hasProfit ? <span className="mask-text">******</span> : amountStr}
               </FitText>
               {hasProfit && percentStr && !masked ? (
                 <span className={`${cls} estimate-profit-percent`} style={{ display: 'block', fontSize: '0.75em', opacity: 0.9, fontWeight: 500 }}>
@@ -738,7 +750,7 @@ export default function PcFundTable({
             >
               <div style={{ flex: '1 1 0', minWidth: 0 }}>
                 <FitText style={{ fontWeight: 700 }} maxFontSize={14} minFontSize={10}>
-                  {masked ? '******' : (info.getValue() ?? '—')}
+                  {masked ? <span className="mask-text">******</span> : (info.getValue() ?? '—')}
                 </FitText>
               </div>
               <button
@@ -776,7 +788,7 @@ export default function PcFundTable({
           return (
             <div style={{ width: '100%' }}>
               <FitText className={cls} style={{ fontWeight: 700, display: 'block' }} maxFontSize={14} minFontSize={10}>
-                {masked && hasProfit ? '******' : amountStr}
+                {masked && hasProfit ? <span className="mask-text">******</span> : amountStr}
               </FitText>
               {percentStr && !isUpdated && !masked ? (
                 <span className={`${cls} today-profit-percent`} style={{ display: 'block', fontSize: '0.75em', opacity: 0.9, fontWeight: 500 }}>
@@ -808,7 +820,7 @@ export default function PcFundTable({
           return (
             <div style={{ width: '100%' }}>
               <FitText className={cls} style={{ fontWeight: 700, display: 'block' }} maxFontSize={14} minFontSize={10}>
-                {masked && hasTotal ? '******' : amountStr}
+                {masked && hasTotal ? <span className="mask-text">******</span> : amountStr}
               </FitText>
               {percentStr && !masked ? (
                 <span className={`${cls} holding-profit-percent`} style={{ display: 'block', fontSize: '0.75em', opacity: 0.9, fontWeight: 500 }}>
@@ -1167,7 +1179,6 @@ export default function PcFundTable({
       >
         <DialogContent
           className="sm:max-w-2xl max-h-[88vh] flex flex-col p-0 overflow-hidden"
-          showCloseButton={true}
           onPointerDownOutside={blockDialogClose ? (e) => e.preventDefault() : undefined}
         >
           <DialogHeader className="flex-shrink-0 flex flex-row items-center justify-between gap-2 space-y-0 px-6 pb-4 pt-6 text-left border-b border-[var(--border)]">

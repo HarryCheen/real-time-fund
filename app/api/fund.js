@@ -712,7 +712,7 @@ export const fetchFundHistory = async (code, range = '1m') => {
 };
 
 export const parseFundTextWithLLM = async (text) => {
-  const apiKey = 'sk-a72c4e279bc62a03cc105be6263d464c';
+  const apiKey = 'sk-5b03d4e02ec22dd2ba233fb6d2dd549b';
   if (!apiKey || !text) return null;
 
   try {

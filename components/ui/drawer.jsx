@@ -4,6 +4,7 @@ import * as React from "react"
 import { Drawer as DrawerPrimitive } from "vaul"
 
 import { cn } from "@/lib/utils"
+import { useBodyScrollLock } from "../../app/hooks/useBodyScrollLock"
 
 const DrawerScrollLockContext = React.createContext(null)
 
@@ -12,36 +13,12 @@ const DrawerScrollLockContext = React.createContext(null)
  * 既锁定滚动又保留视觉位置；overlay 上 ontouchmove preventDefault 防止背景触摸滚动。
  */
 function useScrollLock(open) {
-  const savedScrollYRef = React.useRef(0)
   const onOverlayTouchMove = React.useCallback((e) => {
     e.preventDefault()
   }, [])
 
-  React.useEffect(() => {
-    if (!open || typeof document === "undefined") return
-    const scrollY = window.scrollY ?? window.pageYOffset
-    savedScrollYRef.current = scrollY
-    const prev = {
-      position: document.body.style.position,
-      top: document.body.style.top,
-      left: document.body.style.left,
-      right: document.body.style.right,
-      width: document.body.style.width,
-    }
-    document.body.style.position = "fixed"
-    document.body.style.top = `-${scrollY}px`
-    document.body.style.left = "0"
-    document.body.style.right = "0"
-    document.body.style.width = "100%"
-    return () => {
-      document.body.style.position = prev.position
-      document.body.style.top = prev.top
-      document.body.style.left = prev.left
-      document.body.style.right = prev.right
-      document.body.style.width = prev.width
-      window.scrollTo(0, savedScrollYRef.current)
-    }
-  }, [open])
+  // 统一使用 app 级 hook 处理 body 滚动锁定 & 恢复，避免多处实现导致位移/跳顶问题
+  useBodyScrollLock(open)
 
   return React.useMemo(
     () => (open ? { onTouchMove: onOverlayTouchMove } : null),
